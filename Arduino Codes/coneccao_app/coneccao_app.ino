@@ -10,16 +10,8 @@ IPAddress gateway(192,168,8,100);
 IPAddress subnet(255,255,255,0);
 WiFiServer server(80);
 
-// Biblioteca Servo Esp32
-#include <ESP32_Servo.h>
 
-// Definir os pinos
-Servo servo[4][3];
-const int servo_pin[4][3] = { {11, 12}, 
-                              { 2,  4}, 
-                              {14, 15},
-                              { 8,  9}};
-
+// Setup
 void setup() {
   // Iniciar Serial
   Serial.begin(115200);
@@ -27,23 +19,13 @@ void setup() {
   // Configurações WiFi
   WiFiManager wm;
   bool res;
-  res = wm.autoConnect("QuadBot","12345678");
+  res = wm.autoConnect("QuadBot","12345678"); // Rede AP para Conectar WiFi
   WiFi.mode(WIFI_STA);
   WiFi.config(ip, gateway, subnet);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   server.begin();
   Serial.println("Server started");
-
-  // Configurações Servos
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 3; j++)
-    {
-      servo[i][j].attach(servo_pin[i][j]);
-      delay(100);
-    }
-  }
 }
 
 void loop() {
@@ -75,3 +57,5 @@ void loop() {
     }
   }
 }
+
+// Funções

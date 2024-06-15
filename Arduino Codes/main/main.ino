@@ -1,50 +1,112 @@
+// Bibliotecas WiFi Esp32
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WiFiManager.h>
+#include <WiFiAP.h>
+
+// Info rede Esp32
+IPAddress ip(192,168,8,222);
+IPAddress gateway(192,168,8,100);
+IPAddress subnet(255,255,255,0);
+WiFiServer server(80);
+
 // Biblioteca Servo Esp32
 #include <ESP32_Servo.h>
 
 // Definir os pinos
-Servo servo[4][2];
-const int servo_pin[4][2] = { {25, 33},  //fe
-                              {19, 21},  //fd
-                              {18,  5},  //td
-                              {26, 27},};//te
+Servo servo[4][3];
+const int servo_pin[4][3] = { {11, 12}, 
+                              { 2,  4}, 
+                              {14, 15},
+                              { 8,  9}};
 
-                            //Quadril\Coxa
-#define dg 5  //delay giro
-#define da 5  //delay andar
+// Definições para Movimentos
+#define tg 5  //delay giro
+#define ta 5  //delay andar
 
-int k;
+int acao, k;
 
+// Protótipos
 void padrao();
 void frente();
 void tras();
 void virar_esquerda();
-void virar_direida();
+void virar_direita();
 void desativar();
 void respawn();
 
+// Setup
 void setup() {
+  // Iniciar Serial
+  Serial.begin(115200);
+
+  // Configurações WiFi
+  WiFiManager wm;
+  bool res;
+  res = wm.autoConnect("QuadBot","12345678"); // Rede AP para Conectar WiFi
+  WiFi.mode(WIFI_STA);
+  WiFi.config(ip, gateway, subnet);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+  server.begin();
+  Serial.println("Server started");
+
   // Configurações Servos
   for (int i = 0; i < 4; i++)
   {
-    for (int j = 0; j < 2; j++)
+    for (int j = 0; j < 3; j++)
     {
-      servo[i][j].atdach(servo_pin[i][j]);
+      servo[i][j].attach(servo_pin[i][j]);
       delay(100);
     }
   }
-    padrao();
+
+  // Inicial
+  padrão();
+  delay(500);
+  desativar();
 }
 
 void loop() {
+  // Leiitura WiFi
+  WiFiClient client = server.available();
+  if (client){
+    String currentLine = "";
+    while (client.connected()) {
+      if (client.available()) {
+        char c = client.read();
+        if (c == '\n') break;
+        else if (c != '\r') currentLine += c;
 
-    frente();
-    padrao();
-    
+        // Parar
+        if (currentLine.endsWith("GET /parar")) acao = 0;
+        
+        // Andar Frente
+        else if (currentLine.endsWith("GET /frente")) acao = 1;
+
+        // Andar Trás
+        else if (currentLine.endsWith("GET /tras")) acao = 2;
+        
+        // Girar Direita
+        else if (currentLine.endsWith("GET /direita")) acao = 3;
+        
+        // Girar Esquerda
+        else if (currentLine.endsWith("GET /esquerda")) acao = 4;
+      }
+    }
+  }
+
+  if (acao == 0) padrao();
+  else if (acao == 1) frente();
+  else if (acao == 2) tras();
+  else if (acao == 3) diretira();
+  else if (acao == 4) esquerda();
+  
 }
 
+/////////////////////////////////////////////////////
 
-
-
+// Funções
 void padrao () {
     //Perna Esquerda da Frente
     servo[0][0].write(45);
@@ -61,6 +123,8 @@ void padrao () {
     delay(100);
 }
 
+/////////////////////////////////////////////////////
+
 void desativar (){
     servo[0][0].write(45);
     servo[1][0].write(135);
@@ -76,6 +140,8 @@ void desativar (){
     }
 }
 
+/////////////////////////////////////////////////////
+
 void respawn (){
     servo[0][0].write(45);
     servo[1][0].write(135);
@@ -90,6 +156,8 @@ void respawn (){
       delay(10);
     }
 }
+
+/////////////////////////////////////////////////////
 
 void frente(){
     // Sobe primeiro par
@@ -163,13 +231,16 @@ void frente(){
     }
 }
 
+/////////////////////////////////////////////////////
+
 void tras(){
 
   
 }
 
-void virar_esquerda (){
+/////////////////////////////////////////////////////
 
+void virar_esquerda (){
     // Sobe primeiro par
     for (k = 0; k <= 25; k++){
       servo[0][1].write(k);
@@ -212,8 +283,10 @@ void virar_esquerda (){
       delay(dg);
     }
 }
-void virar_direida (){
 
+/////////////////////////////////////////////////////
+
+void virar_direida (){
     // Sobe segundo par
     for (k = 180; k >= 155; k--){
       servo[1][1].write(k);
@@ -256,25 +329,3 @@ void virar_direida (){
       delay(dg);
     }
 }
-
-
-
-      /*//Perna Esquerda da Frente
-      servo[0][0].write(20);
-      servo[0][1].write(105);
-      delay(100);
-
-      //Perna Direida da Frente
-      servo[1][0].write(160);
-      servo[1][1].write(75);
-      delay(100);
-
-      //Perna Direida Traseira
-      servo[2][0].write(20);
-      servo[2][1].write(105);
-      delay(100);
-
-      //Perna Esquerda Traseira
-      servo[3][0].write(160);
-      servo[3][1].write(75);
-      delay(100);*/
