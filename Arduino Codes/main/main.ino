@@ -21,8 +21,8 @@ const int servo_pin[4][3] = { {11, 12},
                               { 8,  9}};
 
 // Definições para Movimentos
-#define tg 5  //delay giro
-#define ta 5  //delay andar
+#define dg 5  //delay giro
+#define da 5  //delay andar
 
 int acao, k;
 
@@ -62,7 +62,7 @@ void setup() {
   }
 
   // Inicial
-  padrão();
+  padrao();
   delay(500);
   desativar();
 }
@@ -99,8 +99,8 @@ void loop() {
   if (acao == 0) padrao();
   else if (acao == 1) frente();
   else if (acao == 2) tras();
-  else if (acao == 3) diretira();
-  else if (acao == 4) esquerda();
+  else if (acao == 3) virar_direita();
+  else if (acao == 4) virar_esquerda();
   
 }
 
@@ -286,7 +286,7 @@ void virar_esquerda (){
 
 /////////////////////////////////////////////////////
 
-void virar_direida (){
+void virar_direita (){
     // Sobe segundo par
     for (k = 180; k >= 155; k--){
       servo[1][1].write(k);

@@ -28,7 +28,7 @@ void setup() {
   {
     for (int j = 0; j < 2; j++)
     {
-      servo[i][j].atdach(servo_pin[i][j]);
+      servo[i][j].attach(servo_pin[i][j]);
       delay(100);
     }
   }
