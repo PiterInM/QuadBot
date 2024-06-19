@@ -1,13 +1,13 @@
-
 // Bibliotecas WiFi Esp32
 #include <WiFi.h>
 #include <WiFiClient.h>
+#include <WebServer.h>
 #include <WiFiManager.h>
 #include <WiFiAP.h>
 
 // Info rede Esp32
-IPAddress ip(192,168,8,222);
-IPAddress gateway(192,168,8,100);
+IPAddress ip(192,168,97,211);
+IPAddress gateway(192,168,97,100);
 IPAddress subnet(255,255,255,0);
 WiFiServer server(80);
 
@@ -15,11 +15,13 @@ WiFiServer server(80);
 #include <ESP32_Servo.h>
 
 // Definir os pinos
-Servo servo[4][3];
-const int servo_pin[4][3] = { {25, 33},
-                              {19, 21},
-                              {18,  5},
-                              {26, 27}};
+Servo servo[4][2];
+const int servo_pin[4][2] = { {25, 33},  //fe
+                              {19, 21},  //fd
+                              {18,  5},  //td
+                              {26, 27}};//te
+
+                            //Quadril\Coxa
 
 // Definir Configuração Laser
 #define laserPin 23
@@ -39,11 +41,16 @@ const int servo_pin[4][3] = { {25, 33},
 #define buzPin 13
 #define buz 12
 
+// Vidas
+int vidas = 1;
+
 // Definir Delays
 #define dg 5  //delay giro
 #define da 5  //delay andar
 #define dl 50  //delay laser
+#define db 50  //delay buzzer
 
+// Auxiliares
 int k, acao = 11;
 
 // Protótipos
@@ -51,7 +58,7 @@ void padrao();
 void frente();
 void tras();
 void virar_esquerda();
-void virar_direida();
+void virar_direita();
 void desativar();
 void respawn();
 void disparo();
@@ -76,12 +83,13 @@ void setup() {
   // Configurações Servos
   for (int i = 0; i < 4; i++)
   {
-    for (int j = 0; j < 3; j++)
+    for (int j = 0; j < 2; j++)
     {
       servo[i][j].attach(servo_pin[i][j]);
       delay(100);
     }
   }
+  
   // Setup Laser
   ledcSetup(laserChannel, freqLedC, resolution);
   ledcAttachPin(laserPin, laserChannel);
@@ -102,8 +110,9 @@ void setup() {
   ledcAttachPin(buzPin, buz);
   
   // Inicial
+  ledcWrite(laserChannel, 0);
   ledcWrite(laserChannel, 50);
-  padrao();
+  desativar();
 }
 
 void loop() {
@@ -132,12 +141,23 @@ void loop() {
         
         // Girar Esquerda
         else if (currentLine.endsWith("GET /esquerda")) acao = 4;
+        
+        // Disparo
+        else if (currentLine.endsWith("GET /atirar")) disparo();
+        
+        // Ligar
+        else if (currentLine.endsWith("GET /ligar")) respawn();
+        
+        // Desligar
+        else if (currentLine.endsWith("GET /desligar")) desativar();
+        
+        //client.println(vidas);
       }
     }
   }
-
-  if (acao == 0) padrao();
-  else if (acao == 1) frente();
+  
+  //if (acao == 0) padrao();
+   if (acao == 1) frente();
   else if (acao == 2) tras();
   else if (acao == 3) virar_direita();
   else if (acao == 4) virar_esquerda();
@@ -146,7 +166,6 @@ void loop() {
 
 /////////////////////////////////////////////////////
 
-// Funções
 void padrao () {
     //Perna Esquerda da Frente
     servo[0][0].write(45);
@@ -225,7 +244,7 @@ void frente(){
     for (k = 180; k >= 155; k--){
       servo[1][1].write(k);
       servo[3][1].write(k);
-      delay(dg);
+      delay(da);
     }
     
     // Reseda primeiro par
@@ -246,7 +265,7 @@ void frente(){
     for (k = 155; k <= 180; k++){
       servo[1][1].write(k);
       servo[3][1].write(k);
-      delay(dg);
+      delay(da);
     }
     
     // Sobe primeiro par
@@ -274,7 +293,7 @@ void frente(){
 /////////////////////////////////////////////////////
 
 void tras(){
-    //Sobe segundo par
+    // Sobe segundo par
     for (k = 180; k >= 155; k--){
       servo[1][1].write(k);
       servo[3][1].write(k);
@@ -338,7 +357,7 @@ void tras(){
 
 /////////////////////////////////////////////////////
 
-void virar_esquerda (){
+void virar_direita (){
     // Sobe primeiro par
     for (k = 0; k <= 25; k++){
       servo[0][1].write(k);
@@ -384,7 +403,7 @@ void virar_esquerda (){
 
 /////////////////////////////////////////////////////
 
-void virar_direita (){
+void virar_esquerda (){
     // Sobe segundo par
     for (k = 180; k >= 155; k--){
       servo[1][1].write(k);
@@ -440,8 +459,6 @@ void disparo(){
 
 void beep(){
   ledcWrite(buz, 200);
-  delay(50);
+  delay(db);
   ledcWrite(buz, 0);
 }
-
-/////////////////////////////////////////////////////

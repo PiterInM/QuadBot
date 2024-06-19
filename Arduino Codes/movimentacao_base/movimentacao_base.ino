@@ -6,7 +6,7 @@ Servo servo[4][2];
 const int servo_pin[4][2] = { {25, 33},  //fe
                               {19, 21},  //fd
                               {18,  5},  //td
-                              {26, 27},};//te
+                              {26, 27}};//te
 
                             //Quadril\Coxa
 
@@ -39,7 +39,7 @@ void padrao();
 void frente();
 void tras();
 void virar_esquerda();
-void virar_direida();
+void virar_direita();
 void desativar();
 void respawn();
 void disparo();
@@ -326,7 +326,7 @@ void virar_esquerda (){
 
 /////////////////////////////////////////////////////
 
-void virar_direida (){
+void virar_direita (){
     // Sobe segundo par
     for (k = 180; k >= 155; k--){
       servo[1][1].write(k);
