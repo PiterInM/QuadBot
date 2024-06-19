@@ -1,3 +1,4 @@
+
 // Bibliotecas WiFi Esp32
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -15,10 +16,10 @@ WiFiServer server(80);
 
 // Definir os pinos
 Servo servo[4][3];
-const int servo_pin[4][3] = { {11, 12}, 
-                              { 2,  4}, 
-                              {14, 15},
-                              { 8,  9}};
+const int servo_pin[4][3] = { {25, 33},
+                              {19, 21},
+                              {18,  5},
+                              {26, 27}};
 
 // Definir Configuração Laser
 #define laserPin 23
@@ -43,7 +44,7 @@ const int servo_pin[4][3] = { {11, 12},
 #define da 5  //delay andar
 #define dl 50  //delay laser
 
-int acao, k;
+int k, acao = 11;
 
 // Protótipos
 void padrao();
@@ -115,6 +116,7 @@ void loop() {
         char c = client.read();
         if (c == '\n') break;
         else if (c != '\r') currentLine += c;
+        Serial.println(currentLine);
 
         // Parar
         if (currentLine.endsWith("GET /parar")) acao = 0;

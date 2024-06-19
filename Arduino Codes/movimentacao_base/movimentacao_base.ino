@@ -46,6 +46,8 @@ void disparo();
 void beep();
 
 void setup() {
+  Serial.begin(115200);
+  
   // Configurações Servos
   for (int i = 0; i < 4; i++)
   {
