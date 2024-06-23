@@ -2,17 +2,11 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
-#include <WiFiManager.h>
 #include <WiFiAP.h>
 
-// Escolher Robô
-#define p 211 // Robô Preto
-//#define p 212 // Robô Cinza
-
 // Info rede Esp32
-IPAddress ip(192,168,97,p); // 211 - 212
-IPAddress gateway(192,168,135,0);
-IPAddress subnet(255,255,255,0);
+const char *ssid = "QuadBot01";
+const char *password = "12345678";
 WiFiServer server(80);
 
 // Biblioteca Servo Esp32
@@ -20,10 +14,10 @@ WiFiServer server(80);
 
 // Definir os pinos
 Servo servo[4][2];
-const int servo_pin[4][2] = {{25, 33},  //fe
-                             {19, 21},  //fd
-                             {18,  5},  //td
-                             {26, 27}}; //te
+const int servo_pin[4][2] = { {25, 33},  //fe
+                              {19, 21},  //fd
+                              {18,  5},  //td
+                              {26, 27}};//te
                             //Quadril\Coxa
 
 // Definir Configuração Laser
@@ -73,15 +67,10 @@ void setup() {
   Serial.begin(115200);
 
   // Configurações WiFi
-  WiFiManager wm;
-  bool res;
-  res = wm.autoConnect("QuadBot","12345678"); // Rede AP para Conectar WiFi
-  WiFi.mode(WIFI_STA);
-  WiFi.config(ip, gateway, subnet);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  WiFi.softAP(ssid, password);
   server.begin();
   Serial.println("Server started");
+  Serial.println(WiFi.softAPIP());
 
   // Configurações Servos
   for (int i = 0; i < 4; i++)
@@ -130,7 +119,6 @@ void loop() {
         else if (c != '\r') currentLine += c;
 
         Serial.println(currentLine);
-
         // Parar
         if (currentLine.endsWith("GET /parar")) acao = 0;
         
@@ -455,7 +443,7 @@ void disparo(){
   ledcWrite(laserChannel, 255);
   delay(dl);
   ledcWrite(laserChannel, 50);
-        beep();
+  //beep();
 }
 
 /////////////////////////////////////////////////////
