@@ -10,8 +10,8 @@
 //#define p 212 // Robô Cinza
 
 // Info rede Esp32
-IPAddress ip(192,168,97,p); // 211 - 212
-IPAddress gateway(192,168,135,0);
+IPAddress ip(192,168,8,p); // 211 - 212
+IPAddress gateway(192,168,8,0);
 IPAddress subnet(255,255,255,0);
 WiFiServer server(80);
 
